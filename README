@@ -6,9 +6,9 @@ This bot is written by /r/acoard.
 
 TODO:
 *Add proper bot functionality so it can run itself, right now it is just a script that must be manually operated.
-*Edit output formatting, prettify it.
 *Add the option to output data as a sidebar friendly list.
 *Generalize the script so that it could run for other subreddits too.
+*Get some karma for NHLBot, fuck that captcha.
 
 Copyright (c) <2013> Adam Coard
 
