@@ -17,17 +17,17 @@ class NHLBot:
 		numberOfSubmissions = 1
 		#Put submissions in a dictionary so that they can be linked to each subreddit.
 		top_submissions = dict() 
-		for subreddit in self.hockey_subs_TEMP: #DEV only
+		for subreddit in self.hockey_subs: #DEV only
 			top_submissions[subreddit] = [x for x in r.get_subreddit(subreddit).get_top_from_week(limit=numberOfSubmissions)][0]
 			time.sleep(5) #29 teams, 5 second rest == 145sec wait.
 		return top_submissions
 
 	def formatPosts(self, posts):
 		#Takes getTopPosts() for input.
-		message = "Top posts for each hockey team's subreddit.\n"
+		message = "Top posts for each hockey team's subreddit.\n\n"
 		for i in posts:
-			message += str(i) + ": " + "[" + str(posts[i]).split(' :: ')[1] +"](" + str(posts[i].short_link) + ")" \
-			+ " with a karma of " + str(posts[i]).split(' ::')[0] + "\n"
+			message += "* " + str(i) + ": " + "[" + str(posts[i]).split(' :: ')[1] +"](" + str(posts[i].short_link) + ")" \
+			+ " with a karma of " + str(posts[i]).split(' ::')[0] + "\n\n"
 		return message
 
 	def run(self):
