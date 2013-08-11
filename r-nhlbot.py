@@ -6,12 +6,16 @@ import operator
 r = praw.Reddit("User Agent: NHLBot for /r/hockey. v1.0 created by /u/acoard")
 nhlb = "NHLBot"
 
-hockey_subs = [('canucks', "Vancouver Canucks"), ("anaheimducks", "Anaheim Ducks"), ("calgaryflames", "Calgary Flames"), ("losangeleskings", "Los Angeles Kings"), \
-			("coyotes", "Phoenix Coyotes"), ("sanjosesharks", "San Jose Sharks"), ("hawks", "Chicago Blackhawks"),  ("coloradoavalanche", "Colorado Avalanche"), ("dallasstars", "Dallas Stars"),  
+debug = 0
+
+if debug == 0:
+	hockey_subs = [('canucks', "Vancouver Canucks"), ("anaheimducks", "Anaheim Ducks"), ("calgaryflames", "Calgary Flames"), ("losangeleskings", "Los Angeles Kings"), \
+			("coyotes", "Phoenix Coyotes"), ("edmontonoilers", "Edmonton Oilers"), ("sanjosesharks", "San Jose Sharks"), ("hawks", "Chicago Blackhawks"),  ("coloradoavalanche", "Colorado Avalanche"), ("dallasstars", "Dallas Stars"),  
 			("wildhockey", "Minnesota Wild"), ("predators", "Nashville Predators"), ("stlouisblues", "St. Louis Blues"), ("winnipegjets", "Winnipeg Jets"), ("canes", "Carolina Hurricanes"), ("bluejackets", "Columbus Blue Jackets"), 
 			("devils", "New Jersey Devils"), ("newyorkislanders", "New York Islanders"), ("rangers", "New York Rangers"), ("flyers", "Philidelphia Flyers"), ("penguins", "Pittsburg Penguins"), ("caps", "Washington Capitals"), ("bostonbruins", "Boston Bruins"), 
 			("sabres", "Buffalo Sabres"), ("detroitredwings", "Detroit Red Wings"), ("floridapanthers", "Florida Panthers"), ("habs", "Montreal Canadiens"), ("ottawasenators", "Ottawa Senators"), ("tampabaylightning", "Tampa Bay Lightning"), ("leafs", "Toronto Maple Leafs")]
-hockey_subs_TEMP = [('canucks', "Vancouver Canucks"), ("anaheimducks", "Anaheim Ducks"), ("calgaryflames", "Calgary Flames")]
+elif debug == 1:
+	hockey_subs = [('canucks', "Vancouver Canucks"), ("anaheimducks", "Anaheim Ducks"), ("calgaryflames", "Calgary Flames")]
 
 class TrackedSubreddit:
 		def __init__(self, subreddit):
@@ -71,18 +75,25 @@ class NHLBot:
 			alphabetical_list = sorted(posts, key=operator.attrgetter('subreddit'))
 			return alphabetical_list
 
+	def karmaSortPosts(self, posts):
+		if not self.list_of_subreddit_classes:
+			print "Run trackSubs() first."
+		else:
+			karma_list = sorted(posts, )
+
 	def formatPosts(self, posts):
 		"""
 		Takes alphaSortPosts() or getTopPosts() for input.  Returns a string.
 		Formats the output into a bullet point list, with the title of each 
 		thread linking to the thread itself.
 		"""
-		message = "Top posts for each hockey team's subreddit.\n\n"
-		message = "Team [A-Z] | Post | Karma \n :---|:---|:---\n" #TODO: Make the [A-Z] sort decided by parameters.
+		message = "Top posts for each hockey team's subreddit this week.\n\n"
+		message += "Team [A-Z] | Post | Karma \n :---|:---|:---\n" #TODO: Make the [A-Z] sort decided by parameters.
 		for i in posts:
 			message += "[](/" + str(i) + ")" + "/r/" + str(i) + "|" #adds team flair and subreddit link
 			message += "[" + i.top_weekly_post["title"] +"](" + i.top_weekly_post["url"] + ")"  + "|" #title and link
 			message += i.top_weekly_post["karma"] + "\n"
+		message += "Disclaimer: All karma scores are approximate due to how reddit is programmed."
 		return message
 
 	def run(self):
