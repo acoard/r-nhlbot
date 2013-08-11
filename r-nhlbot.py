@@ -49,12 +49,7 @@ class NHLBot:
 		return self.list_of_subreddit_classes
 
 	def getTopPosts(self):
-		"""
-		Returns submissions in a dictionary of lists that they can be linked to each subreddit.
-		e.g. dict["teamName"] = [List: 0=TopWeeklyPost, 1=name]
-		TODO: implement the above.
-		Use generator expressions - http://stackoverflow.com/questions/8653516/python-list-of-dictionaries-search
-		"""		
+		"""Depreciated.  Use TrackedSubreddit.getTopWeeklyPost()"""		
 		for subreddit in nb.hockey_subs_TEMP:
 			#self.subreddit[0] = sub url, self.subreddit[1] = sub name.
 			nb.top_submissions[subreddit[0]] = [x for x in r.get_subreddit(subreddit[0]).get_top_from_week(limit=1)]
