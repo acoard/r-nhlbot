@@ -1,6 +1,7 @@
 #reddit bot for /r/nhl
 import praw
 import time
+import operator
 
 r = praw.Reddit("User Agent: NHLBot for /r/hockey. v1.0 created by /u/acoard")
 nhlb = "NHLBot"
@@ -28,6 +29,7 @@ class TrackedSubreddit:
 			for i in self.top_weekly_post_response:
 				self.top_weekly_post["title"] = str(i).split(" :: ")[1]
 				self.top_weekly_post["karma"] = str(i).split(" :: ")[0]
+				self.top_weekly_post["url"] = i.short_link 
 			return self.top_weekly_post
 
 
@@ -37,11 +39,12 @@ class NHLBot:
 		self.numberOfSubmissions = 1
 		self.top_submissions = dict()
 		self.message = "" 
+		self.list_of_subreddit_classes = []
 	
 	def trackSubs(self):
 		"""Creates the TrackSubreddit classes for each sub in the list. Returns a list of each instance."""
 		self.list_of_subreddit_classes = list()
-		for subreddit in hockey_subs_TEMP:
+		for subreddit in hockey_subs:
 			print "Subreddit: " + subreddit[0]
 			x = TrackedSubreddit(subreddit[0])
 			self.list_of_subreddit_classes.append(x)
@@ -60,22 +63,26 @@ class NHLBot:
 			time.sleep(5) #29 teams, 5 second rest == 145sec wait.
 		return self.top_submissions
 
+	def alphaSortPosts(self, posts):
+		"""Sort posts alphabetically."""
+		if not self.list_of_subreddit_classes:
+			print "Run trackSubs() first."
+		else:
+			alphabetical_list = sorted(posts, key=operator.attrgetter('subreddit'))
+			return alphabetical_list
+
 	def formatPosts(self, posts):
 		"""
-		Takes getTopPosts() for input.  Returns a string.
+		Takes alphaSortPosts() or getTopPosts() for input.  Returns a string.
 		Formats the output into a bullet point list, with the title of each 
 		thread linking to the thread itself.
-
-		Idea: add a functin that sorts getTopPosts() in various ways, e.g. by karma, alphabetically, etc.
-		As it stands, currently the first item in the list will be the bottom on the table.
-		Would likely have to rewrite formatPosts() as well, can't hardcode in table.
 		"""
 		message = "Top posts for each hockey team's subreddit.\n\n"
-		message = "Team [A-Z] | Post | Karma \n :---|:---|:---\n"
+		message = "Team [A-Z] | Post | Karma \n :---|:---|:---\n" #TODO: Make the [A-Z] sort decided by parameters.
 		for i in posts:
-			message += "[](/" + i + ")" + "/r/" + i + "|" #adds team flair and subreddit link
-			message += "[" + str(posts[i]).split(' :: ')[1] +"](" + str(posts[i].short_link) + ")"  + "|" #title and link
-			message += str(posts[i]).split(' ::')[0] + "\n"
+			message += "[](/" + str(i) + ")" + "/r/" + str(i) + "|" #adds team flair and subreddit link
+			message += "[" + i.top_weekly_post["title"] +"](" + i.top_weekly_post["url"] + ")"  + "|" #title and link
+			message += i.top_weekly_post["karma"] + "\n"
 		return message
 
 	def run(self):
@@ -98,5 +105,5 @@ class NHLBot:
 		pass
 
 nb = NHLBot()
-#posts = NHLBot.getTopPosts()
-#formy = NHLBot.formatPosts(posts)
+nb.trackSubs()
+mylist = nb.alphaSortPosts(nb.list_of_subreddit_classes)
