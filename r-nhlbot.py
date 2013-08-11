@@ -3,28 +3,42 @@ import praw
 import time
 
 r = praw.Reddit("User Agent: NHLBot for /r/hockey. v1.0 created by /u/acoard")
-nb = "NHLBot"
+nhlb = "NHLBot"
+
+#TODO: Write a "Subreddit" class that tracks subreddit changes and attributes?
+
 
 class NHLBot:
-	hockey_subs = ['canucks', "anaheimducks", "calgaryflames", "losangeleskings", 
-			"coyotes", "sanjosesharks", "hawks", "coloradoavalanche", "dallasstars", 
-			"wildhockey", "predators", "stlouisblues", "winnipegjets", "canes", "bluejackets", 
-			"devils", "newyorkislanders", "rangers", "flyers", "penguins", "caps", "bostonbruins", 
-			"sabres", "detroitredwings", "floridapanthers", "habs", "ottawasenators", "tampabaylightning", "leafs"]
-	hockey_subs_TEMP = ['canucks', 'leafs', 'flyers']
+	#TODO: Generalize NHLBot, make "NHL" be a paramater it takes.
+	def __init__(self):
+		self.numberOfSubmissions = 1
+		self.top_submissions = dict() 
+
+		#List of tuples.  ("subredditURL", "Name")
+		#TODO: make names optional.
+	hockey_subs = [('canucks', "Vancouver Canucks"), ("anaheimducks", "Anaheim Ducks"), ("calgaryflames", "Calgary Flames"), ("losangeleskings", "Los Angeles Kings"), \
+			("coyotes", "Phoenix Coyotes"), ("sanjosesharks", "San Jose Sharks"), ("hawks", "Chicago Blackhawks"),  ("coloradoavalanche", "Colorado Avalanche"), ("dallasstars", "Dallas Stars"),  
+			("wildhockey", "Minnesota Wild"), ("predators", "Nashville Predators"), ("stlouisblues", "St. Louis Blues"), ("winnipegjets", "Winnipeg Jets"), ("canes", "Carolina Hurricanes"), ("bluejackets", "Columbus Blue Jackets"), 
+			("devils", "New Jersey Devils"), ("newyorkislanders", "New York Islanders"), ("rangers", "New York Rangers"), ("flyers", "Philidelphia Flyers"), ("penguins", "Pittsburg Penguins"), ("caps", "Washington Capitals"), ("bostonbruins", "Boston Bruins"), 
+			("sabres", "Buffalo Sabres"), ("detroitredwings", "Detroit Red Wings"), ("floridapanthers", "Florida Panthers"), ("habs", "Montreal Canadiens"), ("ottawasenators", "Ottawa Senators"), ("tampabaylightning", "Tampa Bay Lightning"), ("leafs", "Toronto Maple Leafs")]
+	hockey_subs_TEMP = [('canucks', "Vancouver Canucks"), ("anaheimducks", "Anaheim Ducks"), ("calgaryflames", "Calgary Flames")]
 
 	def getTopPosts(self):
 		"""
-		Returns submissions in a dictionary so that they can be linked to each subreddit.
-		e.g. dict["teamName"] = TopWeeklyPost
-		"""
-		numberOfSubmissions = 1
-		top_submissions = dict() 
-		for subreddit in self.hockey_subs_TEMP: #DEV only
-			top_submissions[subreddit] = [x for x in r.get_subreddit(subreddit).get_top_from_week(limit=numberOfSubmissions)][0]
-			print "Finished getting data for " + subreddit
+		Returns submissions in a dictionary of lists that they can be linked to each subreddit.
+		e.g. dict["teamName"] = [List: 0=TopWeeklyPost, 1=name]
+		TODO: implement the above.
+		Use generator expressions - http://stackoverflow.com/questions/8653516/python-list-of-dictionaries-search
+		"""		
+		for subreddit in nb.hockey_subs_TEMP:
+			#self.subreddit[0] = sub url, self.subreddit[1] = sub name.
+			nb.top_submissions[subreddit[0]] = [x for x in r.get_subreddit(subreddit[0]).get_top_from_week(limit=1)]
+			nb.top_submissions[subreddit[0]].append(subreddit[1])
+
+			#if hockey_subs is just a list of subreddit urls, if it is a tuple print the second value
+			print "Finished getting data for " + (subreddit or subreddit[0] if subreddit[1] == False else subreddit[1])
 			time.sleep(5) #29 teams, 5 second rest == 145sec wait.
-		return top_submissions
+		return self.top_submissions
 
 	def formatPosts(self, posts):
 		"""
@@ -33,6 +47,7 @@ class NHLBot:
 		thread linking to the thread itself.
 
 		Idea: add a functin that sorts getTopPosts() in various ways, e.g. by karma, alphabetically, etc.
+		As it stands, currently the first item in the list will be the bottom on the table.
 		Would likely have to rewrite formatPosts() as well, can't hardcode in table.
 		"""
 		message = "Top posts for each hockey team's subreddit.\n\n"
@@ -41,11 +56,6 @@ class NHLBot:
 			message += "[](/" + i + ")" + "/r/" + i + "|" #adds team flair and subreddit link
 			message += "[" + str(posts[i]).split(' :: ')[1] +"](" + str(posts[i].short_link) + ")"  + "|" #title and link
 			message += str(posts[i]).split(' ::')[0] + "\n"
-
-		#Original code.
-		# for i in posts:
-		# 	message += "* " + str(i) + ": " + "[" + str(posts[i]).split(' :: ')[1] +"](" + str(posts[i].short_link) + ")" \
-		# 	+ " with a karma of " + str(posts[i]).split(' ::')[0] + "\n\n"
 		return message
 
 	def run(self):
@@ -67,6 +77,7 @@ class NHLBot:
 	def editSidebar(self, subreddit):
 		pass
 
-NHLBot = NHLBot()
-posts = NHLBot.getTopPosts()
-formy = NHLBot.formatPosts(posts)
+
+nb = NHLBot()
+#posts = NHLBot.getTopPosts()
+#formy = NHLBot.formatPosts(posts)
