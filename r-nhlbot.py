@@ -5,23 +5,48 @@ import time
 r = praw.Reddit("User Agent: NHLBot for /r/hockey. v1.0 created by /u/acoard")
 nhlb = "NHLBot"
 
-#TODO: Write a "Subreddit" class that tracks subreddit changes and attributes?
+hockey_subs = [('canucks', "Vancouver Canucks"), ("anaheimducks", "Anaheim Ducks"), ("calgaryflames", "Calgary Flames"), ("losangeleskings", "Los Angeles Kings"), \
+			("coyotes", "Phoenix Coyotes"), ("sanjosesharks", "San Jose Sharks"), ("hawks", "Chicago Blackhawks"),  ("coloradoavalanche", "Colorado Avalanche"), ("dallasstars", "Dallas Stars"),  
+			("wildhockey", "Minnesota Wild"), ("predators", "Nashville Predators"), ("stlouisblues", "St. Louis Blues"), ("winnipegjets", "Winnipeg Jets"), ("canes", "Carolina Hurricanes"), ("bluejackets", "Columbus Blue Jackets"), 
+			("devils", "New Jersey Devils"), ("newyorkislanders", "New York Islanders"), ("rangers", "New York Rangers"), ("flyers", "Philidelphia Flyers"), ("penguins", "Pittsburg Penguins"), ("caps", "Washington Capitals"), ("bostonbruins", "Boston Bruins"), 
+			("sabres", "Buffalo Sabres"), ("detroitredwings", "Detroit Red Wings"), ("floridapanthers", "Florida Panthers"), ("habs", "Montreal Canadiens"), ("ottawasenators", "Ottawa Senators"), ("tampabaylightning", "Tampa Bay Lightning"), ("leafs", "Toronto Maple Leafs")]
+hockey_subs_TEMP = [('canucks', "Vancouver Canucks"), ("anaheimducks", "Anaheim Ducks"), ("calgaryflames", "Calgary Flames")]
+
+class TrackedSubreddit:
+		def __init__(self, subreddit):
+			self.subreddit = subreddit
+			self.top_weekly_post = dict()
+		def __repr__(self):
+			return str(self.subreddit)
+		def test(self):
+			print "A test!"
+		
+		def getTopWeeklyPost(self, numberOfPosts=1):
+			"""Returns a dict, keys: "title", "karma".  Currently does NOT SUPPORT multiple top posts."""
+			self.numberOfPosts = numberOfPosts	
+			self.top_weekly_post_response = r.get_subreddit(self.subreddit).get_top_from_week(limit=numberOfPosts)
+			for i in self.top_weekly_post_response:
+				self.top_weekly_post["title"] = str(i).split(" :: ")[1]
+				self.top_weekly_post["karma"] = str(i).split(" :: ")[0]
+			return self.top_weekly_post
 
 
 class NHLBot:
 	#TODO: Generalize NHLBot, make "NHL" be a paramater it takes.
 	def __init__(self):
 		self.numberOfSubmissions = 1
-		self.top_submissions = dict() 
-
-		#List of tuples.  ("subredditURL", "Name")
-		#TODO: make names optional.
-	hockey_subs = [('canucks', "Vancouver Canucks"), ("anaheimducks", "Anaheim Ducks"), ("calgaryflames", "Calgary Flames"), ("losangeleskings", "Los Angeles Kings"), \
-			("coyotes", "Phoenix Coyotes"), ("sanjosesharks", "San Jose Sharks"), ("hawks", "Chicago Blackhawks"),  ("coloradoavalanche", "Colorado Avalanche"), ("dallasstars", "Dallas Stars"),  
-			("wildhockey", "Minnesota Wild"), ("predators", "Nashville Predators"), ("stlouisblues", "St. Louis Blues"), ("winnipegjets", "Winnipeg Jets"), ("canes", "Carolina Hurricanes"), ("bluejackets", "Columbus Blue Jackets"), 
-			("devils", "New Jersey Devils"), ("newyorkislanders", "New York Islanders"), ("rangers", "New York Rangers"), ("flyers", "Philidelphia Flyers"), ("penguins", "Pittsburg Penguins"), ("caps", "Washington Capitals"), ("bostonbruins", "Boston Bruins"), 
-			("sabres", "Buffalo Sabres"), ("detroitredwings", "Detroit Red Wings"), ("floridapanthers", "Florida Panthers"), ("habs", "Montreal Canadiens"), ("ottawasenators", "Ottawa Senators"), ("tampabaylightning", "Tampa Bay Lightning"), ("leafs", "Toronto Maple Leafs")]
-	hockey_subs_TEMP = [('canucks', "Vancouver Canucks"), ("anaheimducks", "Anaheim Ducks"), ("calgaryflames", "Calgary Flames")]
+		self.top_submissions = dict()
+		self.message = "" 
+	
+	def trackSubs(self):
+		"""Creates the TrackSubreddit classes for each sub in the list. Returns a list of each instance."""
+		self.list_of_subreddit_classes = list()
+		for subreddit in hockey_subs_TEMP:
+			print "Subreddit: " + subreddit[0]
+			x = TrackedSubreddit(subreddit[0])
+			self.list_of_subreddit_classes.append(x)
+			print x.getTopWeeklyPost()
+		return self.list_of_subreddit_classes
 
 	def getTopPosts(self):
 		"""
@@ -76,7 +101,6 @@ class NHLBot:
 
 	def editSidebar(self, subreddit):
 		pass
-
 
 nb = NHLBot()
 #posts = NHLBot.getTopPosts()
